@@ -1,0 +1,26 @@
+services:
+  chatbot:
+    build: .
+    container_name: kg-rag-chatbot
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./data:/app/data
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=n8n_default"
+      - "traefik.http.routers.kg-rag-chatbot.rule=Host(`kesav.thisharvi.com`)"
+      - "traefik.http.routers.kg-rag-chatbot.entrypoints=websecure"
+      - "traefik.http.routers.kg-rag-chatbot.tls=true"
+      - "traefik.http.routers.kg-rag-chatbot.tls.certresolver=mytlschallenge"
+      - "traefik.http.services.kg-rag-chatbot.loadbalancer.server.port=8000"
+
+networks:
+  proxy:
+    external: true
+    name: n8n_default

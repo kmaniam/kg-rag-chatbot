@@ -1,0 +1,541 @@
+<script>
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  let changed = false;
+
+  for (const key of [...params.keys()]) {
+    if (key.toLowerCase().startsWith("utm_")) {
+      params.delete(key);
+      changed = true;
+    }
+  }
+
+  if (changed) {
+    const query = params.toString();
+    const cleanUrl =
+      window.location.pathname +
+      (query ? "?" + query : "") +
+      window.location.hash;
+
+    window.history.replaceState({}, document.title, cleanUrl);
+  }
+})();
+</script>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090B14">
+<title>NEXORA AI — Knowledge Intelligence</title>
+<style>
+:root {
+  --bg:#090b14; --panel:#111426; --panel2:#171a30;
+  --purple:#a78bfa; --cyan:#62ead7; --text:#f5f5ff;
+  --muted:#9ba5c3; --border:rgba(167,139,250,.18);
+}
+* {box-sizing:border-box}
+body {
+  margin:0; color:var(--text); background:
+    radial-gradient(ellipse at 75% 0%,#282052 0,transparent 36%),
+    radial-gradient(ellipse at 0% 70%,#103032 0,transparent 35%),var(--bg);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;
+  min-height:100vh;
+}
+button,input {font:inherit}
+button {cursor:pointer}
+.layout {display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100vh}
+.sidebar {padding:25px 18px;border-right:1px solid var(--border);background:#0b0e19d9}
+.brand {display:flex;gap:12px;align-items:center;margin-bottom:34px}
+.logo {width:44px;height:44px;display:grid;place-items:center;border-radius:15px;
+ background:linear-gradient(135deg,#8b5cf6,#4edaca);color:#090b14;font-size:23px;
+ box-shadow:0 0 30px #8b5cf633}
+.brand-name {font-size:17px;font-weight:850;letter-spacing:1.4px}
+.brand-sub {font-size:9px;color:var(--muted);letter-spacing:1.7px;margin-top:4px}
+.side-label {font-size:10px;letter-spacing:1.8px;color:#858eae;margin:24px 0 12px}
+.stat {padding:13px 14px;border:1px solid var(--border);border-radius:13px;
+ background:linear-gradient(130deg,#a78bfa0c,#62ead708);margin:8px 0}
+.stat-label {color:var(--muted);font-size:12px}
+.stat-value {font-size:23px;font-weight:750;margin-top:5px}
+.pill {display:inline-flex;align-items:center;gap:7px;color:#8cf0d6;font-size:11px}
+.dot {width:7px;height:7px;background:#62ead7;border-radius:50%;box-shadow:0 0 10px #62ead7}
+.upload {display:block;width:100%;border:1px dashed #8f82c6;border-radius:12px;
+ padding:14px;color:#ddd8ff;background:#a78bfa0b;font-size:12px}
+#files {width:100%;font-size:11px;margin:12px 0;color:var(--muted)}
+.primary {border:0;border-radius:11px;padding:12px 16px;font-weight:750;color:#0a0c17;
+ background:linear-gradient(105deg,#b49aff,#62ead7);box-shadow:0 6px 24px #8b5cf622}
+.primary:disabled {opacity:.5;cursor:wait}
+.sidebar .primary {width:100%;font-size:12px}
+.side-note {font-size:11px;line-height:1.7;color:#78829f;margin-top:25px}
+main {padding:28px clamp(18px,4vw,60px) 30px;min-width:0}
+.topbar {display:flex;justify-content:space-between;align-items:center;gap:12px}
+.eyebrow {font-size:10px;color:var(--cyan);letter-spacing:2.2px;font-weight:750}
+.status {font-size:11px;color:var(--muted);border:1px solid var(--border);padding:8px 12px;border-radius:99px}
+.hero {padding:54px 0 26px;max-width:850px}
+h1 {font-size:clamp(36px,5vw,62px);line-height:1.05;letter-spacing:-2.8px;margin:15px 0}
+.gradient {background:linear-gradient(100deg,#fff 10%,#b8a4ff 55%,#62ead7);
+ -webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p {max-width:650px;color:var(--muted);line-height:1.8;font-size:15px}
+.features {display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.feature {font-size:11px;padding:8px 11px;border:1px solid var(--border);
+ background:#ffffff05;border-radius:99px;color:#c7c9e0}
+.section-title {font-size:11px;letter-spacing:1.8px;color:#aab2d0;margin:24px 0 13px}
+.prompts {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.prompt {text-align:left;min-height:112px;border:1px solid var(--border);border-radius:15px;
+ padding:16px;background:linear-gradient(145deg,#171a30cc,#0f1220cc);color:var(--text);
+ transition:.2s}
+.prompt:hover {border-color:#a78bfa88;transform:translateY(-2px);box-shadow:0 12px 35px #0003}
+.prompt-icon {font-size:20px;margin-bottom:12px}
+.prompt-text {font-size:12px;line-height:1.6;color:#d9d9ef}
+.chatbox {margin-top:28px;border:1px solid var(--border);border-radius:20px;overflow:hidden;
+ background:#0d1020c9;box-shadow:0 20px 80px #0002}
+.chat-head {padding:15px 18px;border-bottom:1px solid var(--border);display:flex;
+ align-items:center;justify-content:space-between}
+.chat-title {font-size:13px;font-weight:750}
+.chat-sub {font-size:10px;color:var(--muted);margin-top:4px}
+#clear {background:transparent;color:var(--muted);border:1px solid var(--border);
+ border-radius:8px;padding:7px 10px;font-size:11px}
+#messages {padding:18px;display:flex;flex-direction:column;gap:16px;min-height:90px}
+.empty {text-align:center;color:#7f89a9;font-size:12px;padding:15px}
+.message {max-width:94%;border-radius:14px;padding:14px 16px;font-size:13px;line-height:1.8;overflow-wrap:anywhere}
+.user {align-self:flex-end;background:linear-gradient(120deg,#49357b,#263f59);border:1px solid #a78bfa38}
+.assistant {align-self:flex-start;background:#171a2d;border:1px solid var(--border)}
+.message strong {color:#d4c6ff}
+.message h2,.message h3 {font-size:15px;margin:14px 0 6px}
+.message ul {padding-left:20px}
+.message code {color:#7debd9}
+.composer {display:flex;gap:10px;padding:14px;border-top:1px solid var(--border)}
+#question {min-width:0;flex:1;border:1px solid #363653;background:#111426;color:white;
+ border-radius:12px;padding:13px 15px;outline:none}
+#question:focus {border-color:#a78bfa}
+#send {min-width:94px}
+#evidence {border-top:1px solid var(--border);padding:15px 18px}
+details summary {font-size:12px;color:#c6bbff;cursor:pointer}
+.source {margin-top:12px;padding:12px;background:#ffffff05;border:1px solid var(--border);border-radius:10px}
+.source-name {font-size:12px;font-weight:700}
+.source-text {font-size:12px;line-height:1.7;color:#b6bfd8;margin-top:7px;white-space:pre-wrap}
+.source-meta {font-size:10px;color:#8590ad;margin-top:7px}
+.source-citation {
+  color: #8ee8e0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.source:target {
+  border-color: #8ee8e0;
+  box-shadow: 0 0 0 2px #8ee8e033;
+}
+
+.source-highlight {
+  border-color: #8ee8e0 !important;
+  box-shadow: 0 0 0 2px #8ee8e033;
+}
+#notice {font-size:12px;color:var(--muted);padding:0 18px 15px}
+footer {color:#737e9c;font-size:10px;line-height:1.7;margin:22px 0}
+@media(max-width:850px) {
+ .layout {grid-template-columns:1fr}
+ .sidebar {border-right:0;border-bottom:1px solid var(--border);padding:16px}
+ .brand {margin-bottom:12px}
+ .sidebar .side-label,.sidebar .stat,.sidebar .side-note {display:none}
+ .upload,#files,.sidebar .primary {max-width:100%}
+ main {padding:22px 16px}
+ .hero {padding:34px 0 20px}
+ .prompts {grid-template-columns:1fr}
+ .prompt {min-height:auto}
+ .prompt-icon {display:inline-block;margin:0 10px 0 0}
+ .message {max-width:100%}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">✳</div>
+      <div><div class="brand-name">NEXORA AI</div><div class="brand-sub">KNOWLEDGE INTELLIGENCE</div></div>
+    </div>
+    <div class="pill"><span class="dot"></span> WORKSPACE ONLINE</div>
+    <div class="side-label">KNOWLEDGE CORE</div>
+    <div class="stat"><div class="stat-label">Indexed chunks</div><div class="stat-value" id="chunks">—</div></div>
+    <div class="stat"><div class="stat-label">Graph entities</div><div class="stat-value" id="entities">—</div></div>
+    <div class="stat"><div class="stat-label">Relationships</div><div class="stat-value" id="relationships">—</div></div>
+    <div class="side-label">EXPAND KNOWLEDGE</div>
+    <label class="upload" for="files">＋ &nbsp; Select TXT or PDF documents</label>
+    <input id="files" type="file" accept=".txt,.pdf" multiple>
+    <button class="primary" id="upload">Index selected documents</button>
+    <div class="side-label">DOCUMENT MANAGEMENT</div>
+    <button class="primary" id="manageDocuments">Manage indexed documents</button>
+    <div id="documentManager" hidden>
+      <div id="documentList" aria-live="polite"></div>
+    </div>
+    <div class="side-note">Your private workspace for database knowledge. Verify critical technical guidance against authoritative documentation.</div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div class="eyebrow">AI KNOWLEDGE STUDIO &nbsp; / &nbsp; ORACLE DBA</div>
+      <div class="status">✦ &nbsp; Hybrid RAG</div>
+    </div>
+
+    <section class="hero">
+      <div class="eyebrow">THINK DEEPER. FIND FASTER.</div>
+      <h1>Your knowledge.<br><span class="gradient">Amplified.</span></h1>
+      <p>Ask complex database questions. Explore insights across your documents and knowledge graph, powered by retrieval-augmented generation.</p>
+      <div class="features">
+        <span class="feature">◈ Vector search</span>
+        <span class="feature">⌘ Knowledge graph</span>
+        <span class="feature">✧ AI-powered answers</span>
+        <span class="feature">▤ Document evidence</span>
+      </div>
+    </section>
+
+    <div class="section-title">START WITH A QUESTION</div>
+    <section class="prompts">
+      <button class="prompt" data-question="How do I troubleshoot Oracle TDE keystore issues?"><div class="prompt-icon">◈</div><div class="prompt-text">Troubleshoot Oracle TDE keystore issues</div></button>
+      <button class="prompt" data-question="What should a DBA verify before a database migration?"><div class="prompt-icon">⌘</div><div class="prompt-text">Database migration readiness checklist</div></button>
+      <button class="prompt" data-question="Explain the relevant database performance guidance in my documents."><div class="prompt-icon">✧</div><div class="prompt-text">Explore database performance guidance</div></button>
+    </section>
+
+    <section class="chatbox">
+      <div class="chat-head">
+        <div><div class="chat-title">NEXORA CONVERSATION</div><div class="chat-sub">Answers grounded in your knowledge base</div></div>
+        <button id="clear">Clear chat</button>
+      </div>
+      <div id="messages"><div class="empty">Your next insight starts here. Ask a question below.</div></div>
+      <div class="composer">
+        <input id="question" placeholder="Ask your Oracle DBA knowledge assistant…" autocomplete="off">
+        <button class="primary" id="send">Ask ↗</button>
+      </div>
+      <div id="notice" aria-live="polite"></div>
+      <div id="evidence">
+        <details id="evidenceDetails">
+          <summary>Retrieved evidence &amp; knowledge graph</summary>
+          <div id="sources"></div>
+          <div id="graph"></div>
+        </details>
+      </div>
+    </section>
+    <footer>NEXORA AI · Knowledge intelligence workspace<br>AI-generated answers can be incorrect. Verify critical changes against authoritative documentation.</footer>
+  </main>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+let busy = false;
+
+function safeText(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+
+// Minimal Markdown renderer for model answers; escapes HTML first.
+// Minimal Markdown renderer with safe, clickable source citations.
+function renderMarkdown(input) {
+  let text = safeText(input);
+
+  text = text.replace(/```([\s\S]*?)```/g,
+    (_, code) => `<pre><code>${code}</code></pre>`);
+
+  text = text.replace(/`([^`]+)`/g, "<code>$1</code>");
+
+  // Turn [Document source 1] into a link to the matching evidence card.
+  text = text.replace(
+    /\[Document source (\d+)\]/g,
+    (_, number) =>
+      `<a class="source-citation" href="#evidence-source-${number}" ` +
+      `data-source="${number}">[Document source ${number}]</a>`
+  );
+
+  text = text.replace(/^### (.+)$/gm, "<h3>$1</h3>")
+    .replace(/^## (.+)$/gm, "<h2>$1</h2>")
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/^\s*[-*] (.+)$/gm, "<li>$1</li>")
+    .replace(/(?:<li>.*<\/li>\n?)+/g,
+      block => `<ul>${block}</ul>`)
+    .replace(/\n/g, "<br>");
+
+  return text;
+}
+
+function addMessage(role, content, markdown=false) {
+  const box = document.createElement("div");
+  box.className = `message ${role}`;
+  if (markdown) box.innerHTML = renderMarkdown(content);
+  else box.textContent = content;
+  $("messages").appendChild(box);
+  box.scrollIntoView({behavior:"smooth", block:"nearest"});
+  return box;
+}
+
+async function loadStats() {
+  try {
+    const response = await fetch("/api/stats");
+    if (!response.ok) throw new Error("Stats unavailable");
+    const data = await response.json();
+    $("chunks").textContent = data.indexed_chunks ?? "—";
+    $("entities").textContent = data.entities ?? "—";
+    $("relationships").textContent = data.relationships ?? "—";
+  } catch (_) {
+    $("chunks").textContent = "—";
+    $("entities").textContent = "—";
+    $("relationships").textContent = "—";
+  }
+}
+
+async function askQuestion(value) {
+  const question = value.trim();
+  if (!question || busy) return;
+  busy = true;
+  $("question").value = "";
+  $("notice").textContent = "";
+  $("messages").innerHTML = "";
+  addMessage("user", question);
+  const pending = addMessage("assistant", "Searching your documents and knowledge graph…");
+  $("send").disabled = true;
+
+  try {
+    const response = await fetch("/api/chat", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({question})
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Request failed");
+    pending.remove();
+    addMessage("assistant", data.answer || "No answer was returned.", true);
+    $("sources").innerHTML = "";
+    (data.sources || []).forEach(source => {
+      const card = document.createElement("div");
+      card.className = "source";
+      card.id = `evidence-source-${Number(source.label.match(/\d+/)?.[0] || 0)}`;
+      card.innerHTML = `<div class="source-name">${safeText(source.label)} · ${safeText(source.filename)}</div>
+        <div class="source-text">${safeText(source.text)}</div>
+        <div class="source-meta">Vector distance: ${source.distance == null ? "not available" : safeText(Number(source.distance).toFixed(4))}</div>`;
+      $("sources").appendChild(card);
+    });
+    $("graph").innerHTML = "";
+    if ((data.relationships || []).length) {
+      const title = document.createElement("div");
+      title.className = "source-name";
+      title.style.marginTop = "14px";
+      title.textContent = "Knowledge graph relationships";
+      $("graph").appendChild(title);
+      const list = document.createElement("ul");
+      (data.relationships || []).forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        list.appendChild(li);
+      });
+      $("graph").appendChild(list);
+    }
+    $("evidenceDetails").open = true;
+  } catch (error) {
+    pending.textContent = `Sorry, the request failed: ${error.message}`;
+  } finally {
+    busy = false;
+    $("send").disabled = false;
+    $("question").focus();
+  }
+}
+
+$("send").addEventListener("click", () => askQuestion($("question").value));
+$("question").addEventListener("keydown", event => {
+  if (event.key === "Enter") askQuestion($("question").value);
+});
+document.querySelectorAll("[data-question]").forEach(button => {
+  button.addEventListener("click", () => askQuestion(button.dataset.question));
+});
+$("clear").addEventListener("click", () => {
+  $("messages").innerHTML = '<div class="empty">Your next insight starts here. Ask a question below.</div>';
+  $("sources").innerHTML = "";
+  $("graph").innerHTML = "";
+  $("notice").textContent = "";
+});
+$("files").addEventListener("change", () => {
+  if (!sessionStorage.getItem("nexora_admin_token")) {
+    const token = prompt("Enter the NEXORA document-indexing token:");
+    if (token) sessionStorage.setItem("nexora_admin_token", token);
+  }
+});
+$("upload").addEventListener("click", async () => {
+  const files = $("files").files;
+  if (!files.length) {
+    $("notice").textContent = "Select one or more TXT or PDF files first.";
+    return;
+  }
+  const form = new FormData();
+  for (const file of files) form.append("files", file);
+  $("upload").disabled = true;
+  $("notice").textContent = "Uploading and indexing documents…";
+  try {
+      const token = sessionStorage.getItem("nexora_admin_token") || "";
+    const response = await fetch("/api/upload", {
+      method: "POST",
+      headers: { "X-Nexora-Token": token },
+      body: form
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Upload failed");
+        const results = data.results || [];
+    const succeeded = results.filter(item => item.ok);
+    const failed = results.filter(item => !item.ok);
+
+    const summary = succeeded.map(item => {
+      const skipped = Number(item.skipped_batches || 0);
+      return `${item.filename}: ${item.chunks} chunks indexed; ` +
+        `${item.relationships_added ?? item.relationships_extracted ?? 0} relationships added` +
+        (skipped ? `; ${skipped} extraction batches skipped` : "");
+    });
+
+    const errors = failed.map(item =>
+      `${item.filename}: ${item.error || "Indexing failed"}`
+    );
+
+    let heading;
+    if (failed.length === 0 && succeeded.length > 0) {
+      heading = "Indexing completed successfully.";
+    } else if (succeeded.length > 0) {
+      heading = "Indexing completed with some errors.";
+    } else {
+      heading = "No documents were indexed successfully.";
+    }
+
+    $("notice").textContent = [
+      heading,
+      ...summary,
+      ...errors
+    ].join(" ");
+    await loadStats();
+  } catch (error) {
+    $("notice").textContent = `Upload failed: ${error.message}`;
+  } finally {
+    $("upload").disabled = false;
+  }
+});
+
+async function getDocumentAdminToken() {
+  let token = sessionStorage.getItem("nexora_admin_token") || "";
+  if (!token) {
+    token = prompt("Enter the NEXORA admin token to manage indexed documents:") || "";
+    if (token) sessionStorage.setItem("nexora_admin_token", token);
+  }
+  return token;
+}
+
+function renderDocumentList(documents) {
+  const list = $("documentList");
+  list.replaceChildren();
+
+  if (!documents.length) {
+    const empty = document.createElement("p");
+    empty.textContent = "No indexed documents found.";
+    list.appendChild(empty);
+    return;
+  }
+
+  for (const documentInfo of documents) {
+    const card = document.createElement("div");
+    card.style.cssText = "border:1px solid var(--border,#ddd);border-radius:10px;padding:10px;margin:8px 0;overflow-wrap:anywhere";
+
+    const name = document.createElement("div");
+    name.style.fontWeight = "600";
+    name.textContent = documentInfo.filename || "Unknown document";
+
+    const count = document.createElement("div");
+    count.style.cssText = "font-size:12px;color:var(--muted);margin:5px 0";
+    count.textContent = `${documentInfo.chunks} indexed chunks`;
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.textContent = "Remove document";
+    remove.addEventListener("click", async () => {
+      const filename = documentInfo.filename || "this document";
+      if (!confirm(
+        `ADMIN APPROVAL REQUIRED\n\nRemove "${filename}" and its indexed chunks?\n\nThis action cannot be undone.`
+      )) return;
+
+      // Ask again at deletion time; do not reuse or store this token.
+      const token = prompt("Enter the NEXORA admin token to APPROVE this deletion:");
+      if (!token || !token.trim()) {
+        $("notice").textContent = "Deletion cancelled: admin approval was not provided.";
+        return;
+      }
+
+      remove.disabled = true;
+      $("notice").textContent = `Requesting authorized deletion of ${filename}…`;
+
+      try {
+        const response = await fetch(
+          `/api/documents/${encodeURIComponent(documentInfo.file_hash)}`,
+          {
+            method: "DELETE",
+            headers: { "X-Nexora-Token": token.trim() }
+          }
+        );
+
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(data.detail || `Deletion rejected (HTTP ${response.status}).`);
+        }
+
+        $("notice").textContent =
+          `Removed ${data.filename}: ${data.chunks_removed} chunks deleted.`;
+        await loadStats();
+        await loadIndexedDocuments();
+      } catch (error) {
+        $("notice").textContent = `Document was not confirmed deleted: ${error.message}`;
+      } finally {
+        remove.disabled = false;
+      }
+    });
+
+    card.append(name, count, remove);
+    list.appendChild(card);
+  }
+}
+
+async function loadIndexedDocuments() {
+  const list = $("documentList");
+  list.textContent = "Loading indexed documents…";
+
+  try {
+    const token = await getDocumentAdminToken();
+    if (!token) {
+      list.textContent = "Admin token required to view indexed documents.";
+      return;
+    }
+
+    const response = await fetch("/api/documents", {
+      headers: { "X-Nexora-Token": token }
+    });
+    const data = await response.json().catch(() => ({}));
+
+    if (response.status === 401) {
+      sessionStorage.removeItem("nexora_admin_token");
+      list.textContent = "Authorization failed. Click Manage indexed documents to try again.";
+      $("notice").textContent = "Invalid admin token. No documents were changed.";
+      return;
+    }
+    if (!response.ok) {
+      throw new Error(data.detail || "Could not load indexed documents.");
+    }
+
+    renderDocumentList(data.documents || []);
+  } catch (error) {
+    list.textContent = `Unable to load documents: ${error.message}`;
+  }
+}
+
+$("manageDocuments").addEventListener("click", async () => {
+  const panel = $("documentManager");
+  panel.hidden = !panel.hidden;
+  if (!panel.hidden) await loadIndexedDocuments();
+});
+
+loadStats();
+</script>
+</body>
+</html>
+
